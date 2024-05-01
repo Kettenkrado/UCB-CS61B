@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author TODO: Lynn
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -112,13 +112,99 @@ public class Model extends Observable {
 
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        // changed local variable to true
+        board.setViewingPerspective(side);
+
+        /** 1. modify the board 2. instance variable score gets updated 3. if changed, set the variable to true.*/
+        for (int i = 0 ; i < board.size() ; i++) {
+            int[] originalLine = getVal(i);
+            operateOn(originalLine.clone(), i);
+            int[] operatedLine = getVal(i);
+            if (checkChanged(originalLine, operatedLine)) {
+                changed = true;
+            }
+        }
+
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    /** Get current line's value to decide the behaviors. */
+    public int[] getVal(int i) {
+        int[] val = new int[board.size()];
+        for (int j = 0; j < board.size(); j++) {
+            if (board.tile(i, j) == null) {
+                val[j] = 0;
+                continue;
+            }
+            val[j] = board.tile(i, j).value();
+        }
+        return val;
+    }
+
+    /** Check if the line changed. */
+    public boolean checkChanged(int[] originalLine, int[] operatedLine) {
+        for (int i = 0; i < originalLine.length; i++) {
+            if (originalLine[i] != operatedLine[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Operate on the chosen line. */
+    public void operateOn(int[] currentLine, int line) {
+        int size = currentLine.length, row;
+        boolean[] isMerge = new boolean[size];
+
+        for (int i = 0; i < size ; i++) {
+            isMerge[i] = false;
+        }
+
+        for (int i = size - 1; i >= 0; i--) {
+            Tile t = board.tile(line, i);
+            row = calculateEndingRow(currentLine, isMerge, i);
+            // if no change needed, just skip this move
+            if (row != i) {
+                isMerge[row] = board.move(line, row, t);
+                if (isMerge[row]) {
+                    currentLine[row] *= 2;
+                    score += currentLine[row];
+                } else {
+                    currentLine[row] = currentLine[i];
+                }
+                currentLine[i] = 0;
+            }
+        }
+    }
+
+    /** Calculate this tile's ending point. */
+    public int calculateEndingRow(int[] currentLine, boolean[] isMerge, int i) {
+        int row;
+
+        if (currentLine[i] == 0) {
+            return i;
+        }
+
+        // check if there is same element (and hasn't yet performed merge operation), if is, return it
+        for (int j = i + 1; j < currentLine.length; j++) {
+            if (!isMerge[j] && currentLine[j] == currentLine[i]) {
+                return j;
+            }
+        }
+        // if not, find the last position that has element zero, or just itself
+        row = i;
+        for (int j = i + 1; j < currentLine.length; j++) {
+            if (currentLine[j] == 0) {
+                row = j;
+            }
+        }
+        return row;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -137,7 +223,14 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (b.tile(i, j) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -147,7 +240,16 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (b.tile(i, j) == null) {
+                    continue;
+                } else if (b.tile(i, j).value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -158,10 +260,45 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        /** check if there is still empty space. */
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+        /** check if there are two adjacent tiles with the same value.
+          since if empty space exists situation is discussed above, now we take all tile as not null. */
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                if (sameWithAdjacent(i, j, b)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
+    /** Check if this tile has same value with an adjacent tile */
+    public static boolean sameWithAdjacent(int i, int j, Board b) {
+        for (int vertical = -1; vertical <= 1; vertical++) {
+            if (validateIndex(i, vertical, b)){
+                if (b.tile(i, j).value() == b.tile(i + vertical, j).value()) {
+                    return true;
+                }
+            }
+        }
+        for (int horizontal = -1; horizontal <= 1; horizontal++) {
+            if (validateIndex(j, horizontal, b)){
+                if (b.tile(i, j).value() == b.tile(i, j + horizontal).value()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Check if the index is valid. */
+    public static boolean validateIndex(int i, int offset, Board b) {
+        return !(i + offset >= b.size() || i + offset < 0 || offset == 0);
+    }
 
     @Override
      /** Returns the model as a string, used for debugging. */
