@@ -1,6 +1,8 @@
 package deque;
 
-public class LinkedListDeque<T> {
+import java.util.Iterator;
+
+public class LinkedListDeque<T> implements Deque<T> {
     private Node<T> sentinel;
     private int size;
 
@@ -20,6 +22,7 @@ public class LinkedListDeque<T> {
         size = 1;
     }
 
+    @Override
     public void addFirst(T item) {
         Node<T> first = new Node<T>(item, sentinel, sentinel.next);
         sentinel.next.prev = first;
@@ -27,6 +30,7 @@ public class LinkedListDeque<T> {
         size += 1;
     }
 
+    @Override
     public void addLast(T item) {
         Node<T> last = new Node<T>(item, sentinel.prev, sentinel);
         sentinel.prev.next = last;
@@ -34,17 +38,12 @@ public class LinkedListDeque<T> {
         size += 1;
     }
 
-    public boolean isEmpty() {
-        if (sentinel.next == sentinel) {
-            return true;
-        }
-        return false;
-    }
-
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         Node<T> current = sentinel.next;
         while (current != sentinel) {
@@ -54,6 +53,7 @@ public class LinkedListDeque<T> {
         System.out.println();
     }
 
+    @Override
     public T removeFirst() {
         if (this.isEmpty()) {
             return null;
@@ -65,6 +65,7 @@ public class LinkedListDeque<T> {
         return current;
     }
 
+    @Override
     public T removeLast() {
         if (this.isEmpty()) {
             return null;
@@ -76,6 +77,7 @@ public class LinkedListDeque<T> {
         return current;
     }
 
+    @Override
     public T get(int index) {
         Node<T> current = sentinel.next;
         int cnt = 0;
@@ -101,6 +103,43 @@ public class LinkedListDeque<T> {
             return null;
         }
         return getRecursive(sentinel.next, index);
+    }
+
+    public Iterator<T> iterator() {
+        return new LinkedListIterator<>();
+    }
+
+    public class LinkedListIterator<T> implements Iterator<T> {
+        private int wizPos;
+        public LinkedListIterator() { wizPos = 0; }
+        public boolean hasNext() { return wizPos < size; }
+        public T next() {
+            T returnItem = (T) get(wizPos);
+            wizPos += 1;
+            return returnItem;
+        }
+    }
+
+    public boolean equals(Object o) {
+        if (!(o instanceof ArrayDeque)) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+
+        ArrayDeque<T> other = (ArrayDeque<T>) o;
+        if (size != other.size) {
+            return false;
+        }
+
+        for (int i = 0; i < size; i++) {
+            if (get(i) != other.items[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static class Node<T> {

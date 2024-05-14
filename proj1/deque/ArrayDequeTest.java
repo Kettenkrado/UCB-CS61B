@@ -2,11 +2,10 @@ package deque;
 
 import org.junit.Test;
 import edu.princeton.cs.algs4.StdRandom;
-import static org.junit.Assert.*;
 
 public class ArrayDequeTest {
     @Test
-    public void add() {
+    public void visualize_add() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
         int N = 100;
         for (int i = 0; i < N; i++) {
@@ -22,7 +21,7 @@ public class ArrayDequeTest {
     }
 
     @Test
-    public void remove() {
+    public void visualize_remove() {
         ArrayDeque<Integer> L = new ArrayDeque<>();
         int N = 18;
         for (int i = 0; i < 12; i++) {
@@ -37,5 +36,4 @@ public class ArrayDequeTest {
             L.addFirst(i);
         }
     }
-
 }
