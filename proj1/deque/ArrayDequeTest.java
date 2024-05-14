@@ -72,4 +72,22 @@ public class ArrayDequeTest {
         boolean equality = L.equals(L2);
         assertTrue("This two deques should be the same", equality);
     }
+
+    @Test
+    public void stringEquality() {
+        // reference cmp may fail in my first version of test
+        ArrayDeque<String> L = new ArrayDeque<>();
+        ArrayDeque<String> L2 = new ArrayDeque<>();
+        String x = "monkey";
+        String y = "whatever";
+        String z = "monkey";
+
+        L.addFirst(x);
+        L2.addFirst(z);
+        L.addLast(y);
+        L2.addLast("whatever");
+
+        boolean equality = L.equals(L2);
+        assertTrue("This two deques should be the same", equality);
+    }
 }
