@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> implements Deque<T> {
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private Node<T> sentinel;
     private int size;
 
@@ -12,14 +12,6 @@ public class LinkedListDeque<T> implements Deque<T> {
         sentinel.next = sentinel;
         sentinel.prev = sentinel;
         size = 0;
-    }
-
-    /** Create a deque with the first element */
-    public LinkedListDeque(T item) {
-        sentinel = new Node<>(item, null, null);
-        sentinel.next = new Node<>(item, sentinel, sentinel);
-        sentinel.prev = sentinel.next;
-        size = 1;
     }
 
     @Override
@@ -91,7 +83,7 @@ public class LinkedListDeque<T> implements Deque<T> {
         return null;
     }
 
-    public T getRecursive(Node<T> node, int index) {
+    private T getRecursive(Node<T> node, int index) {
         if (index == 0) {
             return node.item;
         }
@@ -99,7 +91,7 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
 
     public T getRecursive(int index) {
-        if (index > size) {
+        if (index > size || index < 0) {
             return null;
         }
         return getRecursive(sentinel.next, index);
@@ -109,7 +101,7 @@ public class LinkedListDeque<T> implements Deque<T> {
         return new LinkedListIterator<>();
     }
 
-    public class LinkedListIterator<T> implements Iterator<T> {
+    private class LinkedListIterator<T> implements Iterator<T> {
         private int wizPos;
         public LinkedListIterator() { wizPos = 0; }
         public boolean hasNext() { return wizPos < size; }
@@ -121,20 +113,20 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof ArrayDeque)) {
+        if (!(o instanceof Deque)) {
             return false;
         }
         if (o == this) {
             return true;
         }
 
-        ArrayDeque<T> other = (ArrayDeque<T>) o;
-        if (size != other.size) {
+        Deque<T> other = (Deque<T>) o;
+        if (size != other.size()) {
             return false;
         }
 
         for (int i = 0; i < size; i++) {
-            if (get(i) != other.items[i]) {
+            if (get(i) != other.get(i)) {
                 return false;
             }
         }

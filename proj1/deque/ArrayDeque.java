@@ -2,9 +2,9 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Deque<T> {
-    T[] items;
-    int nextFirst, nextLast, size;
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
+    private T[] items;
+    private int nextFirst, nextLast, size;
 
     public ArrayDeque() {
         items = (T[]) new Object[8];
@@ -35,19 +35,19 @@ public class ArrayDeque<T> implements Deque<T> {
         nextLast = (nextLast + 1) % items.length;
     }
 
-    public void resize(int capacity) {
-        T[] new_items = (T[]) new Object[capacity];
+    private void resize(int capacity) {
+        T[] newItems = (T[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
-            new_items[i] = items[(nextFirst + 1 + i) % items.length];
+            newItems[i] = items[(nextFirst + 1 + i) % items.length];
         }
-        nextFirst = new_items.length - 1;
+        nextFirst = newItems.length - 1;
         nextLast = size;
-        items = new_items;
+        items = newItems;
     }
 
     @Override
     public T get(int index) {
-        if (index < 0 || index >= size) {
+        if (index < 0 || index > size) {
             return null;
         }
         return items[(nextFirst + index + 1) % items.length];
@@ -102,8 +102,12 @@ public class ArrayDeque<T> implements Deque<T> {
 
     private class ArrayDequeIterator implements Iterator<T> {
         private int wizPos;
-        public ArrayDequeIterator() { wizPos = 0; }
-        public boolean hasNext() { return wizPos < size; }
+        ArrayDequeIterator() {
+            wizPos = 0;
+        }
+        public boolean hasNext() {
+            return wizPos < size;
+        }
         public T next() {
             T returnItem = get(wizPos);
             wizPos += 1;
@@ -112,20 +116,20 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof ArrayDeque)) {
+        if (!(o instanceof Deque)) {
             return false;
         }
         if (o == this) {
             return true;
         }
 
-        ArrayDeque<T> other = (ArrayDeque<T>) o;
-        if (size != other.size) {
+        Deque<T> other = (Deque<T>) o;
+        if (size != other.size()) {
             return false;
         }
 
         for (int i = 0; i < size; i++) {
-            if (items[i] != other.items[i]) {
+            if (get(i) != other.get(i)) {
                 return false;
             }
         }
