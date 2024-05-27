@@ -1,6 +1,8 @@
 package capers;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
 import static capers.Utils.*;
 
@@ -35,8 +37,10 @@ public class Main {
      *    - story -- file containing the current story
      *
      * @param args arguments from the command line
+     * @source https://www.geeksforgeeks.org/how-to-convert-a-string-to-an-int-in-java/
+     *         string to int: Use Integer.parseInt() method
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length == 0) {
             Utils.exitWithError("Must have at least one argument");
         }
@@ -52,11 +56,11 @@ public class Main {
             break;
         case "dog":
             validateNumArgs("dog", args, 4);
-            // TODO: make a dog
+            CapersRepository.makeDog(args[1], args[2], Integer.parseInt(args[3]));
             break;
         case "birthday":
             validateNumArgs("birthday", args, 2);
-            // TODO: celebrate this dog's birthday
+            CapersRepository.celebrateBirthday(args[1]);
             break;
         default:
             exitWithError(String.format("Unknown command: %s", args[0]));
